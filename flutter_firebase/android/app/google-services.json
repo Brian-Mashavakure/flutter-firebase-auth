@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "155178025960",
+    "project_id": "otp-demo-caabf",
+    "storage_bucket": "otp-demo-caabf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:155178025960:android:07553060b002395cc05a5d",
+        "android_client_info": {
+          "package_name": "com.example.flutter_firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "155178025960-umfbjmhgt55ua1ffbok8utvin5ku8mko.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB19jCwizQaE1pJ4w-cl_uasI4VTJbQUIg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "155178025960-umfbjmhgt55ua1ffbok8utvin5ku8mko.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
