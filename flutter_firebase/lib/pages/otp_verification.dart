@@ -16,8 +16,33 @@ class _OTPState extends State<OTP>{
 
   FirebaseAuth _auth = FirebaseAuth.instance;
   User? user;
+  //boolean to be used to display OTP text field after phone number verification
+  bool otpVisibility = false;
   final otpController = TextEditingController();
+  final phoneController = TextEditingController();
   String verificationID = "";
+
+  //method to verify phone number before code is sent
+  void loginWithPhone() async {
+    _auth.verifyPhoneNumber(
+      phoneNumber: "+27" + phoneController.text,
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await _auth.signInWithCredential(credential).then((value) {
+          print("You are logged in successfully");
+        });
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        print(e.message);
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        otpVisibility = true;
+        verificationID = verificationId;
+        setState(() {});
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
+    );
+  }
+
 
   //OTP auth function
   void verifyOTP() async {
@@ -134,11 +159,38 @@ class _OTPState extends State<OTP>{
 
               SizedBox(height: 10,),
 
+              Visibility(
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  controller: phoneController,
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    hintText: 'Phone NUmber',
+                    suffixIcon: phoneController.text.isEmpty
+                        ? Container(width:0)
+                        : IconButton(
+                      icon:Icon(Icons.close),
+                      onPressed: () => phoneController.clear(),
+                    ),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                visible: otpVisibility,
+              ),
+
+              SizedBox(height: 10,),
+
               ElevatedButton(
                   onPressed: (){
-                    verifyOTP();
+                    if(otpVisibility){
+                      verifyOTP();
+                    }else{
+                      loginWithPhone();
+                    }
                   },
-                  child: Text('SUBMIT'),
+                  child: Text(
+                    otpVisibility? 'VERIFY' : 'SUBMIT',
+                  ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurpleAccent,
                   shape:RoundedRectangleBorder(

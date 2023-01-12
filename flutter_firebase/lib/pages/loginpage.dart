@@ -12,6 +12,7 @@ class LoginPage extends StatefulWidget{
 class _LoginPageState extends State<LoginPage>{
 
   FirebaseAuth _auth = FirebaseAuth.instance;
+  bool otpVisibility = false;
   User? user;
   String verificationID = "";
 
