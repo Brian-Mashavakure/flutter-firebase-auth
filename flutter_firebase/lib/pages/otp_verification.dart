@@ -143,15 +143,16 @@ class _OTPState extends State<OTP>{
                //   },
                // ),
               TextFormField(
-                controller: otpController,
+                keyboardType: TextInputType.number,
+                controller: phoneController,
                 decoration: InputDecoration(
-                  labelText: 'OTP',
-                  hintText: 'OTP',
-                  suffixIcon: otpController.text.isEmpty
+                  labelText: 'Phone Number',
+                  hintText: 'Phone NUmber',
+                  suffixIcon: phoneController.text.isEmpty
                       ? Container(width:0)
                       : IconButton(
                     icon:Icon(Icons.close),
-                    onPressed: () => otpController.clear(),
+                    onPressed: () => phoneController.clear(),
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -161,16 +162,15 @@ class _OTPState extends State<OTP>{
 
               Visibility(
                 child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  controller: phoneController,
+                  controller: otpController,
                   decoration: InputDecoration(
-                    labelText: 'Phone Number',
-                    hintText: 'Phone NUmber',
-                    suffixIcon: phoneController.text.isEmpty
+                    labelText: 'OTP',
+                    hintText: 'OTP',
+                    suffixIcon: otpController.text.isEmpty
                         ? Container(width:0)
                         : IconButton(
                       icon:Icon(Icons.close),
-                      onPressed: () => phoneController.clear(),
+                      onPressed: () => otpController.clear(),
                     ),
                     border: OutlineInputBorder(),
                   ),
@@ -189,7 +189,7 @@ class _OTPState extends State<OTP>{
                     }
                   },
                   child: Text(
-                    otpVisibility? 'VERIFY' : 'SUBMIT',
+                    otpVisibility? 'SUBMIT' : 'VERIFY',
                   ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurpleAccent,

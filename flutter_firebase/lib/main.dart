@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'pages/homepage.dart';
 import 'pages/loginpage.dart';
+import 'pages/otp_verification.dart';
 
 Future main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.deepPurple),
-      home: LoginPage(),
+      home: OTP(),
     );
   }
 }
