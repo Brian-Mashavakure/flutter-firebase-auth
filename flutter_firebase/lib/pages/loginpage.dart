@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'otp_verification.dart';
-
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'homepage.dart';
+import 'loginpage.dart';
 class LoginPage extends StatefulWidget{
   const LoginPage({Key? key}): super(key : key);
 
@@ -17,31 +20,68 @@ class _LoginPageState extends State<LoginPage>{
   String verificationID = "";
 
   final emailController = TextEditingController();
-  final phoneController = TextEditingController();
+  final passwordController = TextEditingController();
 
   String? _email;
   String? _phoneNumber;
+  String? _password;
   bool isPasswordVisible = false;
 
-  //method to verify phone number before code is sent 
-  void loginWithPhone() async {
-    _auth.verifyPhoneNumber(
-      phoneNumber: "+27" + phoneController.text,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await _auth.signInWithCredential(credential).then((value) {
-          print("You are logged in successfully");
-        });
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        print(e.message);
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        verificationID = verificationId;
-        setState(() {});
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
+  Future Login() async{
+
+    try{
+      await _auth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+    }on FirebaseAuthException catch (e){
+      print(e);
+      Fluttertoast.showToast(
+          msg: e.message.toString(),
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.blue,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+      print(e.toString());
+    }
+
+
   }
+
+  //google sign in
+  GoogleSignIn() async{
+    //begin signin process
+    final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+
+    //get user auth details
+    final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+
+    //create new user credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: gAuth.accessToken,
+      idToken: gAuth.idToken,
+    );
+
+    //sign in
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+
+  }
+
+  //disposing of the controllers
+  @override
+  void dispose(){
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+
+
+
+
 
   Widget _buildEmail() => TextFormField(
     textInputAction: TextInputAction.next,
@@ -68,48 +108,24 @@ class _LoginPageState extends State<LoginPage>{
     },
   );
 
-  // Widget _buildPassword() => TextFormField(
-  //   keyboardType: TextInputType.visiblePassword,
-  //   controller: phoneController,
-  //   decoration: InputDecoration(
-  //     labelText: 'Password',
-  //     hintText: 'Password',
-  //     suffixIcon: IconButton(
-  //       icon: isPasswordVisible
-  //           ? Icon(Icons.visibility_off)
-  //           : Icon(Icons.visibility),
-  //       onPressed: () => setState(() => isPasswordVisible = !isPasswordVisible),
-  //     ),
-  //     border: OutlineInputBorder(),
-  //   ),
-  //   onSaved: (value) => setState(() => _password = value),
-  //   validator: (value){
-  //     if(value!.isEmpty){
-  //       return 'password is required';
-  //     }else{
-  //       return null;
-  //     }
-  //   },
-  // );
-
-  Widget _buildPhone() => TextFormField(
-    keyboardType: TextInputType.number,
-    controller: phoneController,
+  Widget _buildPassword() => TextFormField(
+    keyboardType: TextInputType.visiblePassword,
+    controller: passwordController,
     decoration: InputDecoration(
-      labelText: 'Phone Number',
-      hintText: 'Phone NUmber',
-      suffixIcon: phoneController.text.isEmpty
-          ? Container(width:0)
-          : IconButton(
-        icon:Icon(Icons.close),
-        onPressed: () => phoneController.clear(),
+      labelText: 'Password',
+      hintText: 'Password',
+      suffixIcon: IconButton(
+        icon: isPasswordVisible
+            ? Icon(Icons.visibility_off)
+            : Icon(Icons.visibility),
+        onPressed: () => setState(() => isPasswordVisible = !isPasswordVisible),
       ),
       border: OutlineInputBorder(),
     ),
-    onSaved: (value) => setState(() => _phoneNumber = value),
+    onSaved: (value) => setState(() => _password = value),
     validator: (value){
       if(value!.isEmpty){
-        return 'phone number is required';
+        return 'password is required';
       }else{
         return null;
       }
@@ -117,52 +133,56 @@ class _LoginPageState extends State<LoginPage>{
   );
 
 
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
-        backgroundColor: Colors.grey[300],
+        backgroundColor: Colors.grey[200],
         body: SafeArea(
           child: Center(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:   [
-                  Icon(Icons.android_sharp,
-                    size: 80,
-                  ),
-                  Text(
-                    'Hello User',
-                    style: TextStyle(fontWeight: FontWeight.bold,
-                        fontSize: 34 ),),
-                  SizedBox(height:20,),
-                  Text('Welcome Back To Our App',
-                    style: TextStyle(fontSize: 20 ),),
-
-                  // SizedBox(height: 50,),
-                  //
-                  // _buildEmail(),
-
-                  SizedBox(height: 10,),
-
-                  _buildPhone(),
-
-                  SizedBox(height:25 ,),
-
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      elevation: 6,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      )
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:   [
+                    Icon(Icons.android_sharp,
+                      size: 80,
                     ),
-                    onPressed: (){
-                      loginWithPhone();
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => OTP()));
-                    },
-                    child: Text('LOGIN'),
-                  )
+                    Text(
+                      'Hello User',
+                      style: TextStyle(fontWeight: FontWeight.bold,
+                          fontSize: 34 ),),
+                    SizedBox(height:20,),
+                    Text('Welcome Back To Our App',
+                      style: TextStyle(fontSize: 20 ),),
 
-                ]
+                    SizedBox(height: 50,),
+
+                    _buildEmail(),
+
+                    SizedBox(height: 10,),
+
+                    _buildPassword(),
+
+                    SizedBox(height:25 ,),
+
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        )
+                      ),
+                      onPressed: (){
+
+                        Login().whenComplete(() => Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage())));
+                      },
+                      child: Text('LOGIN'),
+                    )
+
+                  ]
+              ),
             ),
           ),
         )
